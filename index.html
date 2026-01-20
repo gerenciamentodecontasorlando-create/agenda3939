@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#0b1020"/>
+  <title>Agenda AH</title>
+  <link rel="manifest" href="manifest.webmanifest"/>
+  <link rel="icon" href="icons/icon-192.png"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="icons/icon-192.png" alt="Ícone" class="brandIcon"/>
+      <div class="brandText">
+        <div class="brandTitle">Agenda AH</div>
+        <div class="brandSub">Âncoras • Calendário • Arquivos • Relatório</div>
+      </div>
+    </div>
+
+    <div class="topActions">
+      <button class="btn ghost" id="btnToday" title="Ir para hoje">Hoje</button>
+      <button class="btn ghost" id="btnExport" title="Gerar relatório e imprimir em PDF">Exportar PDF</button>
+      <button class="btn" id="btnBackup" title="Exportar backup (JSON)">Backup</button>
+      <label class="btn ghost fileBtn" title="Importar backup (JSON)">
+        Importar
+        <input type="file" id="importFile" accept="application/json"/>
+      </label>
+      <button class="btn ghost" id="btnInstall" style="display:none;">Instalar</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="left">
+      <div class="panel">
+        <div class="monthBar">
+          <button class="iconBtn" id="prevMonth" aria-label="Mês anterior">‹</button>
+          <div class="monthTitle" id="monthTitle">—</div>
+          <button class="iconBtn" id="nextMonth" aria-label="Próximo mês">›</button>
+        </div>
+
+        <div class="dow">
+          <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+        </div>
+
+        <div class="calendar" id="calendar"></div>
+
+        <div class="legend">
+          <div class="chip"><span class="dot red"></span>Âncora</div>
+          <div class="chip"><span class="dot yellow"></span>Complementos</div>
+          <div class="chip"><span class="dot blue"></span>Notas</div>
+          <div class="chip"><span class="dot green"></span>Arquivos</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panelTitle">Radar (auto)</div>
+        <div class="radar">
+          <div class="radarItem">
+            <div class="radarK">Âncoras na semana</div>
+            <div class="radarV" id="kpiAnchors">0</div>
+          </div>
+          <div class="radarItem">
+            <div class="radarK">Dias com registro</div>
+            <div class="radarV" id="kpiDays">0</div>
+          </div>
+          <div class="radarItem">
+            <div class="radarK">Arquivos salvos</div>
+            <div class="radarV" id="kpiFiles">0</div>
+          </div>
+        </div>
+        <div class="hint" id="hintText">Dica: clique num dia e escreva uma Âncora simples.</div>
+      </div>
+    </aside>
+
+    <section class="right">
+      <div class="panel">
+        <div class="dayHeader">
+          <div>
+            <div class="dayTitle" id="dayTitle">—</div>
+            <div class="dayMeta" id="dayMeta">—</div>
+          </div>
+          <div class="dayHeaderActions">
+            <button class="btn ghost" id="btnCloneYesterday" title="Copiar ontem">Copiar ontem</button>
+            <button class="btn danger ghost" id="btnClearDay" title="Limpar o dia">Limpar</button>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>🔴 Âncora do dia (1 coisa principal)</label>
+            <input id="anchor" placeholder="Ex: terminar relatório da semana / revisar cardiologia 30 min"/>
+          </div>
+          <div class="field">
+            <label>Tags (separadas por vírgula)</label>
+            <input id="tags" placeholder="ex: estudo, saúde, financeiro"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>🟡 Complementos (até 3)</label>
+          <div class="tasks" id="tasks"></div>
+          <button class="btn ghost small" id="btnAddTask">+ adicionar complemento</button>
+        </div>
+
+        <div class="field">
+          <label>🔵 Notas livres (pensamento, ideias, desabafo, link)</label>
+          <textarea id="notes" rows="7" placeholder="Escreve aqui sem medo. O sistema segura a memória por você."></textarea>
+        </div>
+
+        <div class="field">
+          <label>🟢 Arquivos (fotos e documentos)</label>
+          <div class="fileRow">
+            <label class="btn ghost fileBtn">
+              Adicionar arquivos
+              <input type="file" id="fileInput" multiple/>
+            </label>
+            <div class="fileInfo" id="fileInfo">Tudo fica salvo offline no seu dispositivo (IndexedDB).</div>
+          </div>
+
+          <div class="attachments" id="attachments"></div>
+        </div>
+
+        <div class="saveRow">
+          <div class="saveStatus" id="saveStatus">Autosave ativado.</div>
+          <button class="btn" id="btnSaveNow">Salvar agora</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panelTitle">Livro-caixa (opcional, mas poderoso)</div>
+        <div class="cashGrid">
+          <div class="field">
+            <label>Entrada (R$)</label>
+            <input id="cashIn" inputmode="decimal" placeholder="0,00"/>
+          </div>
+          <div class="field">
+            <label>Saída (R$)</label>
+            <input id="cashOut" inputmode="decimal" placeholder="0,00"/>
+          </div>
+          <div class="field cashWide">
+            <label>Descrição</label>
+            <input id="cashDesc" placeholder="Ex: material, combustível, consulta, pagamento"/>
+          </div>
+          <button class="btn" id="btnAddCash">Adicionar</button>
+        </div>
+
+        <div class="cashList" id="cashList"></div>
+      </div>
+
+      <footer class="footer">
+        <span>Offline-first • Sem login • Seus dados ficam no aparelho</span>
+        <span id="ver">v1.0</span>
+      </footer>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
